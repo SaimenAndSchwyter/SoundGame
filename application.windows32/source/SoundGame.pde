@@ -1,4 +1,4 @@
-import ddf.minim.*; //<>// //<>//
+import ddf.minim.*; //<>//
 
 AudioPlayer player;
 Minim minim;
@@ -9,26 +9,16 @@ int jumpCounter=0;
 //Player
 int currentY=150;
 boolean gameStart =false;
-int score;
-int currentScore;
 
 Rect[] rectArray = new Rect[12];
 void setup() {
-  frameRate(25);
   size(1024, 200, P2D);
-  bg = loadImage("bg.png");
-  background(bg);
-  for (int i=0; i<10; i++) {
-    textSize(32);
-    fill(#11aaff);
-    textAlign(CENTER, CENTER);
-    text("Game starts in "+i+"s", 100, 50);
-    second();
-  }
   reset();
 }
 
 void draw() {
+
+
   int lowTot = 0;
   for (int i = 0; i < player.left.size()/3.0; i+=5) {
     lowTot+= (abs(player.left.get(i)) * 50 );
@@ -45,6 +35,8 @@ void draw() {
 void stop() {
   try {
     player.close();
+    minim.stop(); 
+    super.stop();
   }
   catch(Exception err) {
   }
@@ -92,15 +84,11 @@ void drawRect(int i, int y) {
       if (rectArray[i].x<=0) {
         rectArray[i] = null;
       }
-      clear();
 
+
+      clear();
       //BG
       background(bg);
-      //Score
-              textSize(15);
-    fill(#000000);
-    textAlign(RIGHT, CENTER);
-    text("Score:"+score, 950, 50);
       //Air
       fill(#d4e3fc);
       stroke(#d4e3fc);
@@ -137,7 +125,6 @@ void drawRect(int i, int y) {
           if (rectArray[rectelement] != null && elokay) {
             if (currentY+10 == rectArray[rectelement].y) {
               ellipse(50, currentY, 20, 20);
-              score++;
             } else {
               if (!gameStart) {
                 if (rectArray[0].x ==50) {
@@ -166,10 +153,16 @@ void drawRect(int i, int y) {
 }
 
 void reset() {
-  score = currentScore;
   bg = loadImage("bg.png");
-  background(bg);
   stop();
+  for (int i=0; i<10; i++) {
+    textSize(32);
+    fill(#11aaff);
+    textAlign(CENTER, CENTER);
+    text("Game starts in "+i+"s", width, 200);
+    delay(1000);
+  }
+  clear();
   bg = loadImage("bg.png");
   for (int i=0; i<rectArray.length; i++) {
     rectArray[i] =null;
@@ -185,5 +178,4 @@ void reset() {
   //Player
   currentY=150;
   gameStart =false;
-  currentScore=0;
 }

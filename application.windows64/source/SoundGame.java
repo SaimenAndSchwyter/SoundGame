@@ -1,4 +1,22 @@
-import ddf.minim.*; //<>// //<>//
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import ddf.minim.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class SoundGame extends PApplet {
+
+ //<>//
 
 AudioPlayer player;
 Minim minim;
@@ -9,28 +27,18 @@ int jumpCounter=0;
 //Player
 int currentY=150;
 boolean gameStart =false;
-int score;
-int currentScore;
 
 Rect[] rectArray = new Rect[12];
-void setup() {
-  frameRate(25);
-  size(1024, 200, P2D);
-  bg = loadImage("bg.png");
-  background(bg);
-  for (int i=0; i<10; i++) {
-    textSize(32);
-    fill(#11aaff);
-    textAlign(CENTER, CENTER);
-    text("Game starts in "+i+"s", 100, 50);
-    second();
-  }
+public void setup() {
+  
   reset();
 }
 
-void draw() {
+public void draw() {
+
+
   int lowTot = 0;
-  for (int i = 0; i < player.left.size()/3.0; i+=5) {
+  for (int i = 0; i < player.left.size()/3.0f; i+=5) {
     lowTot+= (abs(player.left.get(i)) * 50 );
   }
   drawRect(element, lowTot);
@@ -42,29 +50,31 @@ void draw() {
   }
 }
 
-void stop() {
+public void stop() {
   try {
     player.close();
+    minim.stop(); 
+    super.stop();
   }
   catch(Exception err) {
   }
 }
 
-void jump() {
+public void jump() {
   jumpLoop(20);
   rejumpLoop(20);
 }
 
-void jumpLoop(int eHeight) {
+public void jumpLoop(int eHeight) {
   for (int i=0; i<=eHeight; i++) {
-    fill(#11aaff);
+    fill(0xff11aaff);
     ellipse(50, currentY+i, 20, 20);
   }
   currentY+=eHeight;
 }
-void rejumpLoop(int eHeight) {
+public void rejumpLoop(int eHeight) {
   for (int i=eHeight; i<=0; i--) {
-    fill(#11aaff);
+    fill(0xff11aaff);
     ellipse(50, currentY-i, 20, 20);
   }
   currentY-=eHeight;
@@ -77,10 +87,10 @@ public class Rect {
     this.y = height - (y%200) - 20;
   }
 }
-void drawRect(int i, int y) {
+public void drawRect(int i, int y) {
   noStroke();
   stroke(255);
-  fill(#9b3611);
+  fill(0xff9b3611);
   if (i<rectArray.length) {
     if (rectArray[i] == null) {
       rectArray[i] = new Rect(i, y);
@@ -92,23 +102,19 @@ void drawRect(int i, int y) {
       if (rectArray[i].x<=0) {
         rectArray[i] = null;
       }
-      clear();
 
+
+      clear();
       //BG
       background(bg);
-      //Score
-              textSize(15);
-    fill(#000000);
-    textAlign(RIGHT, CENTER);
-    text("Score:"+score, 950, 50);
       //Air
-      fill(#d4e3fc);
-      stroke(#d4e3fc);
+      fill(0xffd4e3fc);
+      stroke(0xffd4e3fc);
       int wolken = width/40;
       for (int g=0; g<=wolken; g++) {
         ellipse((g*40)+20, 0, 40, 40);
       }
-      fill(#ffa100);
+      fill(0xffffa100);
       for (int j=0; j<rectArray.length; j++) {
         if (rectArray[j] != null) {
           rectArray[j].x --;
@@ -117,7 +123,7 @@ void drawRect(int i, int y) {
 
         if (keyPressed) {
           if (jumpCounter%40 ==0) {
-            fill(#ffa100);
+            fill(0xffffa100);
             ellipse(50, currentY-1, 20, 20);
             currentY-=1;
           } else {
@@ -137,7 +143,6 @@ void drawRect(int i, int y) {
           if (rectArray[rectelement] != null && elokay) {
             if (currentY+10 == rectArray[rectelement].y) {
               ellipse(50, currentY, 20, 20);
-              score++;
             } else {
               if (!gameStart) {
                 if (rectArray[0].x ==50) {
@@ -165,11 +170,17 @@ void drawRect(int i, int y) {
   }
 }
 
-void reset() {
-  score = currentScore;
+public void reset() {
   bg = loadImage("bg.png");
-  background(bg);
   stop();
+  for (int i=0; i<10; i++) {
+    textSize(32);
+    fill(0xff11aaff);
+    textAlign(CENTER, CENTER);
+    text("Game starts in "+i+"s", width, 200);
+    delay(1000);
+  }
+  clear();
   bg = loadImage("bg.png");
   for (int i=0; i<rectArray.length; i++) {
     rectArray[i] =null;
@@ -185,5 +196,14 @@ void reset() {
   //Player
   currentY=150;
   gameStart =false;
-  currentScore=0;
+}
+  public void settings() {  size(1024, 200, P2D); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "SoundGame" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
