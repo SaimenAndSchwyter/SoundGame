@@ -11,20 +11,17 @@ int currentY=150;
 boolean gameStart =false;
 int score;
 int currentScore;
+int initCount;
+long lastTime = 0;
 
 Rect[] rectArray = new Rect[12];
 void setup() {
-  frameRate(25);
+  frameRate(60);
+  lastTime = millis();
   size(1024, 200, P2D);
   bg = loadImage("bg.png");
   background(bg);
-  for (int i=0; i<10; i++) {
-    textSize(32);
-    fill(#11aaff);
-    textAlign(CENTER, CENTER);
-    text("Game starts in "+i+"s", 100, 50);
-    second();
-  }
+
   reset();
 }
 
@@ -78,6 +75,8 @@ public class Rect {
   }
 }
 void drawRect(int i, int y) {
+
+  //play game  
   noStroke();
   stroke(255);
   fill(#9b3611);
@@ -96,68 +95,72 @@ void drawRect(int i, int y) {
 
       //BG
       background(bg);
-      //Score
-              textSize(15);
-    fill(#000000);
-    textAlign(RIGHT, CENTER);
-    text("Score:"+score, 950, 50);
-      //Air
-      fill(#d4e3fc);
-      stroke(#d4e3fc);
-      int wolken = width/40;
-      for (int g=0; g<=wolken; g++) {
-        ellipse((g*40)+20, 0, 40, 40);
-      }
-      fill(#ffa100);
-      for (int j=0; j<rectArray.length; j++) {
-        if (rectArray[j] != null) {
-          rectArray[j].x --;
-          rect(rectArray[j].x, (rectArray[j].y), 20, 20);
+      //init game
+      if (initCount < 5) {
+        textSize(32);
+        fill(#000000);
+        textAlign(CENTER, CENTER);
+        text("Game starts in 10s", width/2, 100);
+        if (millis() - lastTime > 10000) {
+          initCount++;
         }
+      } else {
+        //Score
+        textSize(15);
+        fill(#000000);
+        textAlign(RIGHT, CENTER);
+        text("Score:"+score, 950, 50);
+        fill(#ffa100);
+        for (int j=0; j<rectArray.length; j++) {
+          if (rectArray[j] != null) {
+            rectArray[j].x --;
+            rect(rectArray[j].x, (rectArray[j].y), 20, 20);
+          }
 
-        if (keyPressed) {
-          if (jumpCounter%40 ==0) {
-            fill(#ffa100);
-            ellipse(50, currentY-1, 20, 20);
-            currentY-=1;
-          } else {
-            jumpCounter++;
-          }
-        } else {
-          int rectelement =0;
-          boolean elokay = false;
-          for (int k=0; k<rectArray.length; k++) {
-            if (rectArray[k] != null) {
-              if (rectArray[k].x <= 60 && rectArray[k].x >= 30) {
-                rectelement = k;
-                elokay = true;
-              }
-            }
-          }
-          if (rectArray[rectelement] != null && elokay) {
-            if (currentY+10 == rectArray[rectelement].y) {
-              ellipse(50, currentY, 20, 20);
-              score++;
+          if (keyPressed) {
+            if (jumpCounter%40 ==0) {
+              fill(#ffa100);
+              ellipse(50, currentY-1, 20, 20);
+              currentY-=1;
             } else {
-              if (!gameStart) {
-                if (rectArray[0].x ==50) {
-                  gameStart =true;
+              jumpCounter++;
+            }
+          } else {
+            int rectelement =0;
+            boolean elokay = false;
+            for (int k=0; k<rectArray.length; k++) {
+              if (rectArray[k] != null) {
+                if (rectArray[k].x <= 60 && rectArray[k].x >= 30) {
+                  rectelement = k;
+                  elokay = true;
                 }
               }
+            }
+            if (rectArray[rectelement] != null && elokay) {
+              if (currentY+10 == rectArray[rectelement].y) {
+                ellipse(50, currentY, 20, 20);
+                currentScore++;
+              } else {
+                if (!gameStart) {
+                  if (rectArray[0].x ==50) {
+                    gameStart =true;
+                  }
+                }
+                if (gameStart) {
+                  ellipse(50, currentY+1, 20, 20);
+                  currentY+=1;
+                }
+              }
+            } else {
               if (gameStart) {
                 ellipse(50, currentY+1, 20, 20);
                 currentY+=1;
               }
             }
-          } else {
-            if (gameStart) {
-              ellipse(50, currentY+1, 20, 20);
-              currentY+=1;
-            }
           }
         }
+        ellipse(50, currentY, 20, 20);
       }
-      ellipse(50, currentY, 20, 20);
     }
   }
   if (currentY <0 || currentY>200) {
@@ -166,7 +169,9 @@ void drawRect(int i, int y) {
 }
 
 void reset() {
-  score = currentScore;
+  if (currentScore > score) {
+    score = currentScore;
+  }
   bg = loadImage("bg.png");
   background(bg);
   stop();
@@ -174,7 +179,7 @@ void reset() {
   for (int i=0; i<rectArray.length; i++) {
     rectArray[i] =null;
   }
-  
+
   minim = new Minim(this);
   player = minim.loadFile("song.mp3", 256);
   player.play();
@@ -186,4 +191,6 @@ void reset() {
   currentY=150;
   gameStart =false;
   currentScore=0;
+  initCount =0;
+  lastTime = millis();
 }
